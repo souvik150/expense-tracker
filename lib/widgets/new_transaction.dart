@@ -1,10 +1,22 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class NewTransaction extends StatelessWidget {
   final Function addTx;
   NewTransaction(this.addTx);
+
+  void submitData() {
+    final enteredTitle = titleController.text;
+    final enteredAmount = double.parse(amountController.text);
+    if (enteredTitle.isEmpty || enteredAmount <= 0) {
+      return;
+    }
+
+    addTx(enteredTitle, enteredAmount);
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+  }
 
   final titleController = TextEditingController();
   final amountController = TextEditingController();
@@ -29,15 +41,13 @@ class NewTransaction extends StatelessWidget {
               decoration: InputDecoration(labelText: 'Amount'),
               controller: amountController,
               // onChanged: (val) => amountInput = val,
+              keyboardType: TextInputType.number,
+              onEditingComplete: submitData,
             ),
             FlatButton(
-              child: Text('Add Transaction'),
-              textColor: Colors.purple,
-              onPressed: () {
-                addTx(
-                    titleController.text, double.parse(amountController.text));
-              },
-            )
+                child: Text('Add Transaction'),
+                textColor: Colors.purple,
+                onPressed: submitData)
           ],
         ),
       ),
